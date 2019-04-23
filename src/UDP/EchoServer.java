@@ -1,3 +1,5 @@
+package UDP;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -49,7 +51,7 @@ public class EchoServer extends Thread {
         socket.close();
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         new EchoServer().start();
     }
 }

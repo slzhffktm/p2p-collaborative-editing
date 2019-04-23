@@ -1,3 +1,5 @@
+package UDP;
+
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -45,7 +47,7 @@ public class EchoClient {
         socket.close();
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         EchoClient client = new EchoClient();
 
         Scanner sc = new Scanner(System.in);
@@ -57,5 +59,7 @@ public class EchoClient {
             echo = client.sendEcho(msg);
             System.out.println(echo);
         } while (!msg.equals("end"));
+
+        client.close();
     }
 }
