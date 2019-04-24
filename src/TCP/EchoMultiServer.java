@@ -9,6 +9,7 @@ import java.net.Socket;
 
 public class EchoMultiServer {
     private ServerSocket serverSocket;
+    private String text = "";
 
     public void start(int port) {
         try {
@@ -33,12 +34,27 @@ public class EchoMultiServer {
         }
     }
 
-    private static class EchoClientHandler extends Thread {
+    private void insert(int insertedCharIndex, char insertedChar) {
+        text = text.substring(0, insertedCharIndex) + insertedChar + text.substring(insertedCharIndex);
+        System.out.println("text: " + text);
+    }
+
+    private void remove(int removedCharIndex) {
+        text = text.substring(0, removedCharIndex) + text.substring(removedCharIndex + 1);
+        System.out.println("text: " + text);
+    }
+
+    private class EchoClientHandler extends Thread {
         private Socket clientSocket;
         private PrintWriter out;
         private BufferedReader in;
 
-        public EchoClientHandler(Socket socket) {
+        private String incomingCommand = "";
+        private String textOnThread;
+
+        private SenderThread senderThread;
+
+        EchoClientHandler(Socket socket) {
             this.clientSocket = socket;
         }
 
@@ -50,23 +66,24 @@ public class EchoMultiServer {
                 e.printStackTrace();
             }
 
-            String inputLine = null;
+            textOnThread = text;
+
+            // start sender thread
+            senderThread = new SenderThread();
+            senderThread.start();
+
             try {
-                inputLine = in.readLine();
+                incomingCommand = in.readLine();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            while (inputLine != null) {
-                System.out.println(inputLine);
-                if (".".equals(inputLine)) {
-                    out.println("bye");
-                    break;
-                }
-                out.println(inputLine);
+            while (incomingCommand != null) {
+                System.out.println(incomingCommand);
+                doCommand();
 
                 try {
-                    inputLine = in.readLine();
+                    incomingCommand = in.readLine();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -78,6 +95,40 @@ public class EchoMultiServer {
                 clientSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }
+
+        private void doCommand() {
+            String[] commands = incomingCommand.split("`");
+            if (commands.length > 1) {
+                int idx = Integer.parseInt(commands[0]);
+                char character = commands[1].toCharArray()[0];
+
+                insert(idx, character);
+            } else {
+                int idx = Integer.parseInt(commands[0]);
+
+                remove(idx);
+            }
+
+            textOnThread = text;
+        }
+
+        private class SenderThread extends Thread {
+            SenderThread() {
+
+            }
+
+            @Override
+            public void run() {
+                while (!incomingCommand.equals("end")) {
+                    out.println(text);
+//                    if (!textOnThread.equals(text)) {
+//                        System.out.println("tot: " + textOnThread);
+//                        out.println(text);
+//                        textOnThread = text;
+//                    }
+                }
             }
         }
     }

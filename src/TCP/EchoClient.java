@@ -45,19 +45,21 @@ public class EchoClient {
 
     public static void main(String[] args) {
         EchoClient client = new EchoClient();
+        TextEditor textEditor = new TextEditor();
 
-        client.startConnection("localhost", 4445);
-
-        Scanner sc = new Scanner(System.in);
-        String echo;
-        String msg;
-
-        do {
-            msg = sc.nextLine();
-            echo = client.sendMessage(msg);
-            System.out.println(echo);
-        } while (!msg.equals("end"));
-
-        client.stopConnection();
+//        client.startConnection("localhost", 4445);
+//
+////        Scanner sc = new Scanner(System.in);
+//        String echo;
+//        String msg;
+//
+//        do {
+//            msg = textEditor.getText();
+//            echo = client.sendMessage(msg);
+////            System.out.println(echo);
+//            textEditor.setText(echo);
+//        } while (!msg.equals("end"));
+//
+//        client.stopConnection();
     }
 }
