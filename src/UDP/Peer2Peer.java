@@ -1,5 +1,9 @@
 package UDP;
 
+import UDP.TextEditor;
+
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -11,11 +15,14 @@ public class Peer2Peer {
 
     private DatagramSocket socket;
     private int port;
+    private ArrayList<InetAddress> addresses = new ArrayList<>();
 
     private boolean running = false;
-    private byte[] buf;
 
-    private ArrayList<InetAddress> addresses = new ArrayList<>();
+    private TextEditor textEditor;
+    private String text = "";
+    private Boolean isUpdatingTextEditor = false;
+
 
     public Peer2Peer() {
         port = 4445;
@@ -33,8 +40,35 @@ public class Peer2Peer {
         }
 
         if (running) {
+            textEditor = new TextEditor();
+            textEditor.getT().getDocument().addDocumentListener(new DocumentListener() {
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+                    if (!isUpdatingTextEditor) {
+                        int insertedCharIndex = textEditor.getCursorPosition();
+                        char insertedChar = textEditor.getText().charAt(insertedCharIndex);
+                        System.out.println(insertedCharIndex + "`" + insertedChar);
+                        sendEcho(insertedCharIndex + "`" + insertedChar);
+                    }
+                }
+
+                @Override
+                public void removeUpdate(DocumentEvent e) {
+                    if (!isUpdatingTextEditor) {
+                        int removedCharIndex = textEditor.getCursorPosition() - 1;
+                        sendEcho(Integer.toString(removedCharIndex));
+                    }
+                }
+
+                @Override
+                public void changedUpdate(DocumentEvent e) {
+
+                }
+            });
+
             addAddresses(addressNumber);
             sendPing();
+
             new ReceiverThread().start();
         }
     }
@@ -54,7 +88,7 @@ public class Peer2Peer {
     }
 
     public void sendEcho(String msg) {
-        buf = msg.getBytes();
+        byte[] buf = msg.getBytes();
         DatagramPacket packet;
         for (InetAddress address : addresses) {
             packet = new DatagramPacket(buf, buf.length, address, port);
@@ -68,6 +102,8 @@ public class Peer2Peer {
     }
 
     private class ReceiverThread extends Thread {
+        private String incomingCommand;
+
         ReceiverThread() {
 
         }
@@ -91,9 +127,10 @@ public class Peer2Peer {
 
                 addAddress(packet.getAddress());
 
-                String received = new String(packet.getData(), 0, packet.getLength());
+                incomingCommand = new String(packet.getData(), 0, packet.getLength());
+                System.out.println(incomingCommand);
+                doCommand();
 
-                System.out.println(received);
             }
         }
 
@@ -101,6 +138,21 @@ public class Peer2Peer {
             System.out.println("new address: " + newAddress);
             if (!addresses.contains(newAddress)) {
                 addresses.add(newAddress);
+            }
+        }
+
+        private void doCommand() {
+            String[] commands = incomingCommand.split("`");
+
+            if (commands[0].equals("i")) {
+                int idx = Integer.parseInt(commands[1]);
+                char character = commands[2].toCharArray()[0];
+
+//                insert(idx, character);
+            } else if (commands[0].equals("r")) {
+                int idx = Integer.parseInt(commands[1]);
+
+//                remove(idx);
             }
         }
     }
