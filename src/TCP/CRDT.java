@@ -31,7 +31,7 @@ public class CRDT {
     public void remoteInsert(Char c) {
         int index = this.findInsertIndex(c);
         this.struct.add(index, c);
-        this.
+//        this.
     }
 
     public int findInsertIndex(Char c) {

@@ -43,6 +43,12 @@ public class Version {
         this.exceptions = new ArrayList<Integer>();
     }
 
+    public Version(String siteId, int counter) {
+        this.siteId = siteId;
+        this.counter = counter;
+        this.exceptions = new ArrayList<Integer>();
+    }
+
     /**
      * Update a site's version based on the incoming operation that was processed
      * If the incomingCounter is less than we had previously processed, we can remove it from the exceptions

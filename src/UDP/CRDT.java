@@ -20,12 +20,12 @@ public class CRDT {
         this.controller = controller;
     }
 
-    public Char localInsert(char value, int index) {
+    public void localInsert(char value, int index) {
         this.vector.increment();
         Char c;
         c = this.generateChar(value, index);
         this.struct.add(index, c);
-        return c;
+//        return c;
     }
 
     public void remoteInsert(Char c) {
@@ -34,22 +34,16 @@ public class CRDT {
 //        this.controller.insertToTextEditor(c.getValue(), index);
     }
 
-    public Char localDelete(int index) {
+    public void localDelete(int index) {
         this.controller.getVector().increment();
         Char c = this.struct.get(index - 1);
 
         this.struct.remove(index - 1);
-        return c;
+//        return c;
     }
 
     public void remoteDelete(Char c) {
-        int index = -1;
-
-        for (int i = 0; i < this.struct.size(); i++) {
-            if (c.compareTo(this.struct.get(i)) == 0) {
-                index = i;
-            }
-        }
+        int index = findPosition(c);
 
         if (index == -1) {
             return;
@@ -116,6 +110,15 @@ public class CRDT {
             throw new Error("Character doesn't exist in CRDT");
 //            return 0;
         }
+    }
+
+    public int findPosition(Char c) {
+        for (int i = 0; i < this.struct.size(); i++) {
+            if (c.compareTo(this.struct.get(i)) == 0) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public Char generateChar(char val, int index) {
