@@ -21,6 +21,9 @@ public class Peer2Peer {
     private String text = "";
     private Boolean isUpdatingTextEditor = false;
 
+    private CRDT crdt;
+    private VersionVector vector;
+
 
     public Peer2Peer() {
         port = 4445;
@@ -145,6 +148,10 @@ public class Peer2Peer {
         text = text.substring(0, deletedCharIndex) + text.substring(deletedCharIndex + 1);
         updateTextOnEditor();
         System.out.println("text: " + text);
+    }
+
+    public VersionVector getVector() {
+        return vector;
     }
 
     private class ReceiverThread extends Thread {

@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CRDT {
-    private final VersionVector vector;
-    private final int base;
-    private final int boundary;
-    private final EchoServer controller;
+    private VersionVector vector;
+    private int base;
+    private int boundary;
+    private Peer2Peer controller;
     private String siteId;
     private ArrayList<Char> struct;
 
-    public CRDT(String siteId, EchoServer controller) {
+    public CRDT(String siteId, Peer2Peer controller) {
         this.siteId = siteId;
         this.struct = new ArrayList<>();
         this.vector = controller.getVector();
@@ -31,7 +31,31 @@ public class CRDT {
     public void remoteInsert(Char c) {
         int index = this.findInsertIndex(c);
         this.struct.add(index, c);
-        this.
+//        this.controller.insertToTextEditor(c.getValue(), index);
+    }
+
+    public Char localDelete(int index) {
+        this.controller.getVector().increment();
+        Char c = this.struct.get(index - 1);
+
+        this.struct.remove(index - 1);
+        return c;
+    }
+
+    public void remoteDelete(Char c) {
+        int index = -1;
+
+        for (int i = 0; i < this.struct.size(); i++) {
+            if (c.compareTo(this.struct.get(i)) == 0) {
+                index = i;
+            }
+        }
+
+        if (index == -1) {
+            return;
+        }
+        this.struct.remove(index);
+//        this.controller.deleteToTextEditor(index);
     }
 
     public int findInsertIndex(Char c) {
@@ -41,7 +65,7 @@ public class CRDT {
 
         if (this.struct.size() == 0 || c.compareTo(this.struct.get(left)) < 1) {
             return left;
-        } else if (c.compareTo(this.struct.get(right)) > 0){
+        } else if (c.compareTo(this.struct.get(right)) > 0) {
             return this.struct.size();
         }
 
@@ -170,7 +194,7 @@ public class CRDT {
                 }
                 if (posAfter.size() > 0) {
                     List sublist = posAfter.subList(1, posAfter.size());
-                    posAfter= new ArrayList<Identifier>(sublist);
+                    posAfter = new ArrayList<Identifier>(sublist);
                 }
                 this.generatePosBetween(posBefore, posAfter, newPos, level + 1);
             } else {
@@ -185,3 +209,4 @@ public class CRDT {
         }
         System.out.println("");
     }
+}
