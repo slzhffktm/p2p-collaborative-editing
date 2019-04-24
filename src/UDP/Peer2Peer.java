@@ -1,7 +1,5 @@
 package UDP;
 
-import UDP.TextEditor;
-
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.net.DatagramPacket;
@@ -126,6 +124,10 @@ public class Peer2Peer {
     }
 
     private void remoteInsert(int insertedCharIndex, char insertedChar, String siteId) {
+        ArrayList<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(new Identifier(insertedCharIndex, siteId));
+        Char c = new Char(insertedChar, 0, siteId, identifiers);
+
         // TODO: 4/25/2019 implement this
 
         text = text.substring(0, insertedCharIndex) + insertedChar + text.substring(insertedCharIndex);
@@ -134,6 +136,10 @@ public class Peer2Peer {
     }
 
     private void remoteDelete(int deletedCharIndex, char deletedChar, String siteId) {
+        ArrayList<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(new Identifier(deletedCharIndex, siteId));
+        Char c = new Char(deletedChar, 0, siteId, identifiers);
+
         // TODO: 4/25/2019 implement this
 
         text = text.substring(0, deletedCharIndex) + text.substring(deletedCharIndex + 1);
