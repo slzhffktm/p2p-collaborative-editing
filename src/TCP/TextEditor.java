@@ -21,11 +21,14 @@ public class TextEditor extends JFrame {
         }
 
         // Text component
-        t = new JTextArea(20,40);
+        t = new JTextArea("`1234567890-=qwertyuiop[]\\asdfghjkl;'zxcvbnm,./ |~!@#$%^&*()_+{}:\"<>?", 20,40);
+        t.setLineWrap(true);
 
         f.add(t);
         f.pack();
         f.setVisible(true);
+
+        t.setText("");
     }
 
     int getCursorPosition() {

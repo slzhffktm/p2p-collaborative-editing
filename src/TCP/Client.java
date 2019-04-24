@@ -85,10 +85,13 @@ public class Client {
         }
 
         private void updateDocument() {
-//            int cursorPosition = textEditor.getCursorPosition();
-//            System.out.println("cursor pos belum diisi:" + cursorPosition);
+            System.out.println("text: " + textEditor.getText());
+            int cursorPosition = textEditor.getCursorPosition();
+            System.out.println("cursor pos belum diisi:" + cursorPosition);
+            isUpdatingTextEditor = true;
             textEditor.setText(serverText);
-//            textEditor.setCursorPosition(cursorPosition);
+            textEditor.setCursorPosition(cursorPosition);
+            isUpdatingTextEditor = false;
         }
 
         private void receiveMessage() {
@@ -100,11 +103,9 @@ public class Client {
             }
             while (message != null) {
                 if (!message.equals(serverText)) {
-                    isUpdatingTextEditor = true;
                     System.out.println("Message: " + message);
                     serverText = message;
                     updateDocument();
-                    isUpdatingTextEditor = false;
                 }
 
                 try {
