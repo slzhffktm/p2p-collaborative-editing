@@ -10,10 +10,17 @@ import java.net.Socket;
 public class EchoMultiServer {
     private ServerSocket serverSocket;
     private String text = "";
+    private String siteId;
+    private VersionVector vector;
+
+    public VersionVector getVector() {
+        return vector;
+    }
 
     public void start(int port) {
         try {
             serverSocket = new ServerSocket(port);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
