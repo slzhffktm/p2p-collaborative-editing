@@ -47,16 +47,16 @@ public class Peer2Peer {
                     if (!isUpdatingTextEditor) {
                         int insertedCharIndex = textEditor.getCursorPosition();
                         char insertedChar = textEditor.getText().charAt(insertedCharIndex);
-                        System.out.println(insertedCharIndex + "`" + insertedChar);
-                        sendEcho(insertedCharIndex + "`" + insertedChar);
+                        localInsert(insertedCharIndex, insertedChar);
                     }
                 }
 
                 @Override
                 public void removeUpdate(DocumentEvent e) {
                     if (!isUpdatingTextEditor) {
-                        int removedCharIndex = textEditor.getCursorPosition() - 1;
-                        sendEcho(Integer.toString(removedCharIndex));
+                        int deletedCharIndex = textEditor.getCursorPosition() - 1;
+                        char deletedChar = text.charAt(deletedCharIndex);
+                        localDelete(deletedCharIndex, deletedChar);
                     }
                 }
 
@@ -101,6 +101,46 @@ public class Peer2Peer {
         }
     }
 
+    private void updateTextOnEditor() {
+        int cursorPosition = textEditor.getCursorPosition();
+        isUpdatingTextEditor = true;
+        textEditor.setText(text);
+        textEditor.setCursorPosition(cursorPosition);
+        isUpdatingTextEditor = false;
+    }
+
+    private void localInsert(int insertedCharIndex, char insertedChar) {
+        // TODO: 4/25/2019 implement this
+
+        System.out.println("i`" + insertedCharIndex + "`" + insertedChar);
+        sendEcho("i`" + insertedCharIndex + "`" + insertedChar);
+        text = textEditor.getText();
+    }
+
+    private void localDelete(int deletedCharIndex, char deletedChar) {
+        // TODO: 4/25/2019 implement this
+
+        System.out.println("r`" + deletedCharIndex + "`" + deletedChar);
+        sendEcho("r`" + deletedCharIndex + "`" + deletedChar);
+        text = textEditor.getText();
+    }
+
+    private void remoteInsert(int insertedCharIndex, char insertedChar, String siteId) {
+        // TODO: 4/25/2019 implement this
+
+        text = text.substring(0, insertedCharIndex) + insertedChar + text.substring(insertedCharIndex);
+        updateTextOnEditor();
+        System.out.println("text: " + text);
+    }
+
+    private void remoteDelete(int deletedCharIndex, char deletedChar, String siteId) {
+        // TODO: 4/25/2019 implement this
+
+        text = text.substring(0, deletedCharIndex) + text.substring(deletedCharIndex + 1);
+        updateTextOnEditor();
+        System.out.println("text: " + text);
+    }
+
     private class ReceiverThread extends Thread {
         private String incomingCommand;
 
@@ -129,30 +169,31 @@ public class Peer2Peer {
 
                 incomingCommand = new String(packet.getData(), 0, packet.getLength());
                 System.out.println(incomingCommand);
-                doCommand();
+                doCommand(packet.getAddress().toString());
 
             }
         }
 
         private void addAddress(InetAddress newAddress) {
-            System.out.println("new address: " + newAddress);
             if (!addresses.contains(newAddress)) {
+                System.out.println("Adding new address: " + newAddress);
                 addresses.add(newAddress);
             }
         }
 
-        private void doCommand() {
+        private void doCommand(String siteId) {
             String[] commands = incomingCommand.split("`");
 
             if (commands[0].equals("i")) {
                 int idx = Integer.parseInt(commands[1]);
                 char character = commands[2].toCharArray()[0];
 
-//                insert(idx, character);
+                remoteInsert(idx, character, siteId);
             } else if (commands[0].equals("r")) {
                 int idx = Integer.parseInt(commands[1]);
+                char character = commands[2].toCharArray()[0];
 
-//                remove(idx);
+                remoteDelete(idx, character, siteId);
             }
         }
     }
