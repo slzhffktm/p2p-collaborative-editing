@@ -256,11 +256,7 @@ public class Peer2Peer {
                 int idx = Integer.parseInt(commands[1]);
                 char character = commands[2].toCharArray()[0];
 
-                // char value, int counter, String siteId, ArrayList<Identifier> position
-                // Char c = new Char (...);
-                // remoteInsert(c);
-
-                remoteInsert(idx, character, siteId);
+                remoteInsert(idx, character);
             } else if (commands[0].equals("r")) {
                 int idx = Integer.parseInt(commands[1]);
                 char character = commands[2].toCharArray()[0];
