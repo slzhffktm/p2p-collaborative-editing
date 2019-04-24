@@ -11,7 +11,7 @@ import java.util.ArrayList;
 public class Version {
     private int siteId;
     private int counter;
-    private ArrayList<int> exceptions;
+    private ArrayList<Integer> exceptions;
 
     public int getSiteId() {
         return siteId;
@@ -29,18 +29,18 @@ public class Version {
         this.counter = counter;
     }
 
-    public ArrayList<int> getExceptions() {
+    public ArrayList<Integer> getExceptions() {
         return exceptions;
     }
 
-    public void setExceptions(ArrayList<int> exceptions) {
+    public void setExceptions(ArrayList<Integer> exceptions) {
         this.exceptions = exceptions;
     }
 
     public Version(int siteId) {
         this.siteId = siteId;
         this.counter = 0;
-        this.exceptions = new ArrayList<>();
+        this.exceptions = new ArrayList<Integer>();
     }
 
     /**
