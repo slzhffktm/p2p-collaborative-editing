@@ -2,7 +2,7 @@ package TCP;
 
 public class Identifier {
     private int digit;
-    private int siteId;
+    private String siteId;
 
     public int getDigit() {
         return digit;
@@ -12,15 +12,15 @@ public class Identifier {
         this.digit = digit;
     }
 
-    public int getSiteId() {
+    public String getSiteId() {
         return siteId;
     }
 
-    public void setSiteId(int siteId) {
+    public void setSiteId(String siteId) {
         this.siteId = siteId;
     }
 
-    public Identifier(int digit, int siteId) {
+    public Identifier(int digit, String siteId) {
         this.digit = digit;
         this.siteId = siteId;
     }
@@ -31,13 +31,7 @@ public class Identifier {
         } else if (this.digit > otherId.digit) {
             return 1;
         } else {
-            if (this.siteId < otherId.siteId) {
-                return -1;
-            } else if (this.siteId > otherId.siteId) {
-                return 1;
-            } else {
-                return 0;
-            }
+            return this.siteId.compareTo(otherId.siteId);
         }
     }
 }

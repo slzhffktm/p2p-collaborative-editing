@@ -11,7 +11,15 @@ public class VersionVector {
     private ArrayList<Version> versions;
     private Version localVersion;
 
-    public VersionVector(int siteId) {
+    public ArrayList<Version> getVersions() {
+        return versions;
+    }
+
+    public Version getLocalVersion() {
+        return localVersion;
+    }
+
+    public VersionVector(String siteId) {
         this.versions = new ArrayList<>();
         this.localVersion = new Version(siteId);
         this.versions.add(this.localVersion);

@@ -9,15 +9,15 @@ import java.util.ArrayList;
  */
 
 public class Version {
-    private int siteId;
+    private String siteId;
     private int counter;
     private ArrayList<Integer> exceptions;
 
-    public int getSiteId() {
+    public String getSiteId() {
         return siteId;
     }
 
-    public void setSiteId(int siteId) {
+    public void setSiteId(String siteId) {
         this.siteId = siteId;
     }
 
@@ -37,7 +37,7 @@ public class Version {
         this.exceptions = exceptions;
     }
 
-    public Version(int siteId) {
+    public Version(String siteId) {
         this.siteId = siteId;
         this.counter = 0;
         this.exceptions = new ArrayList<Integer>();

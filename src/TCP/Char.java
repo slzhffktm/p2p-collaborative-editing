@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Char {
     private ArrayList<Identifier> position;
     private int counter;
-    private int siteId;
+    private String siteId;
     private char value;
 
     public ArrayList<Identifier> getPosition() {
@@ -24,11 +24,11 @@ public class Char {
         this.counter = counter;
     }
 
-    public int getSiteId() {
+    public String getSiteId() {
         return siteId;
     }
 
-    public void setSiteId(int siteId) {
+    public void setSiteId(String siteId) {
         this.siteId = siteId;
     }
 
@@ -40,7 +40,7 @@ public class Char {
         this.value = value;
     }
 
-    public Char(char value, int counter, int siteId, ArrayList<Identifier> position) {
+    public Char(char value, int counter, String siteId, ArrayList<Identifier> position) {
         this.position = position;
         this.counter = counter;
         this.siteId = siteId;
