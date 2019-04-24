@@ -15,12 +15,13 @@ public class EchoClient {
         try {
             socket = new DatagramSocket();
             address = InetAddress.getByName("localhost");
+            new ReceivingThread().start();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public String sendEcho(String msg) {
+    public void sendEcho(String msg) {
         buf = msg.getBytes();
         DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4445);
 
@@ -29,22 +30,39 @@ public class EchoClient {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        packet = new DatagramPacket(buf, buf.length);
-
-        try {
-            socket.receive(packet);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        String received = new String(packet.getData(), 0, packet.getLength());
-
-        return received;
     }
 
     public void close() {
         socket.close();
+    }
+
+    private class ReceivingThread extends Thread {
+        public ReceivingThread() {
+
+        }
+
+        @Override
+        public void run() {
+            super.run();
+
+            DatagramPacket packet;
+
+            while (true) {
+                buf = new byte[256];
+
+                packet = new DatagramPacket(buf, buf.length);
+
+                try {
+                    socket.receive(packet);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                String received = new String(packet.getData(), 0, packet.getLength());
+
+                System.out.println(received);
+            }
+        }
     }
 
     public static void main(String[] args) {
@@ -56,8 +74,7 @@ public class EchoClient {
 
         do {
             msg = sc.nextLine();
-            echo = client.sendEcho(msg);
-            System.out.println(echo);
+            client.sendEcho(msg);
         } while (!msg.equals("end"));
 
         client.close();
