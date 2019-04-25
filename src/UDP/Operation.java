@@ -13,15 +13,8 @@ public class Operation {
         return c;
     }
 
-    public void setC(Char c) {
-        this.c = c;
-    }
-
     public char getType() {
         return type;
     }
 
-    public void setType(char type) {
-        this.type = type;
-    }
 }
