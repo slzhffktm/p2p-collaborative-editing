@@ -29,6 +29,7 @@ public class CRDT {
     }
 
     public void remoteInsert(Char c) {
+        System.out.println("c pos: " + c.getPosition().get(0).getDigit());
         int index = this.findInsertIndex(c);
         this.struct.add(index, c);
 //        this.controller.insertToTextEditor(c.getValue(), index);
@@ -208,5 +209,14 @@ public class CRDT {
             System.out.print(c.getValue());
         }
         System.out.println("");
+    }
+
+    String getString() {
+        String string = "";
+        for (Char c : this.struct) {
+            string += c.getValue();
+        }
+
+        return string;
     }
 }

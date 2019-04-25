@@ -36,7 +36,7 @@ public class Peer2Peer {
                 socket = new DatagramSocket(port, InetAddress.getByName(address));
                 System.out.println("Creating new socket at " + socket.getLocalSocketAddress());
                 running = true;
-                siteId = String.valueOf(socket.getLocalSocketAddress());
+                siteId = String.valueOf(socket.getLocalAddress());
                 break;
             } catch (Exception e) {
                 ++addressNumber;
@@ -151,6 +151,7 @@ public class Peer2Peer {
 
     private void remoteInsert(int insertedCharIndex, char insertedChar) {
         Char c = crdt.generateChar(insertedChar, insertedCharIndex);
+        System.out.println("this: " + c.getPosition().get(0).getDigit());
 
 //        System.out.println("remote insert");
         System.out.println("insertcharindex: " + insertedCharIndex);
