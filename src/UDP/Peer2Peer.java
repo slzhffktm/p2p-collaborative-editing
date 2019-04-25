@@ -24,10 +24,10 @@ public class Peer2Peer {
     private String siteId;
     private CRDT crdt;
     private VersionVector vector;
-    private ArrayList<Operation> deletionBuffer;
+    private ArrayList<Operation> deletionBuffer = new ArrayList<>();
 
 
-    public Peer2Peer() {
+    Peer2Peer() {
         port = 4445;
         int addressNumber = 1;
         while (addressNumber <= 10) {
@@ -105,7 +105,7 @@ public class Peer2Peer {
         sendEcho("p");
     }
 
-    public void sendEcho(String msg) {
+    private void sendEcho(String msg) {
         byte[] buf = msg.getBytes();
         DatagramPacket packet;
         for (InetAddress address : addresses) {
@@ -129,7 +129,9 @@ public class Peer2Peer {
 
     private void localInsert(int insertedCharIndex, char insertedChar) {
         // TODO: 4/25/2019 implement this
-        Char c = crdt.localInsert(insertedChar, insertedCharIndex);
+        crdt.localInsert(insertedChar, insertedCharIndex);
+
+        crdt.printString();
 
         System.out.println("i`" + insertedCharIndex + "`" + insertedChar);
         sendEcho("i`" + insertedCharIndex + "`" + insertedChar);        // send the command to all nodes
@@ -140,8 +142,10 @@ public class Peer2Peer {
         // TODO: 4/25/2019 implement this
         Char c = crdt.localDelete(deletedCharIndex);
 
-        System.out.println("r`" + deletedCharIndex + "`" + deletedChar);
-        sendEcho("r`" + deletedCharIndex + "`" + deletedChar);          // send the command to all nodes
+        crdt.printString();
+
+        System.out.println("r`" + deletedCharIndex + "`" + deletedChar + "`" + c.getCounter());
+        sendEcho("r`" + deletedCharIndex + "`" + deletedChar + "`" + c.getCounter());          // send the command to all nodes
         text = textEditor.getText();
     }
 
@@ -150,16 +154,24 @@ public class Peer2Peer {
 //        identifiers.add(new Identifier(insertedCharIndex, siteId));
         Char c = crdt.generateChar(insertedChar, insertedCharIndex);
 
+        System.out.println("remote insert");
+
         // TODO: 4/25/2019 implement this
         Version operationVersion = new Version(c.getSiteId(), c.getCounter());
         if (this.vector.hasBeenApplied(operationVersion)) {
             return;
         }
+
+        System.out.println("after version");
+
         crdt.remoteInsert(c);
         this.vector.update(operationVersion);
         this.doDeletionBuffer();
 
-        text = text.substring(0, insertedCharIndex) + insertedChar + text.substring(insertedCharIndex);
+        crdt.printString();
+
+        text = crdt.getString();
+//        text = text.substring(0, insertedCharIndex) + insertedChar + text.substring(insertedCharIndex);
         updateTextOnEditor();
         System.out.println("text: " + text);
     }
@@ -184,25 +196,26 @@ public class Peer2Peer {
         return this.vector.hasBeenApplied(v);
     }
 
-    private void remoteDelete(int deletedCharIndex, char deletedChar, String siteId) {
+    private void remoteDelete(int deletedCharIndex, char deletedChar, int counter, String siteId) {
         ArrayList<Identifier> identifiers = new ArrayList<>();
         identifiers.add(new Identifier(deletedCharIndex, siteId));
-        Char c = new Char(deletedChar, 0, siteId, identifiers);
+        Char c = new Char(deletedChar, counter, siteId, identifiers);
 
         // TODO: 4/25/2019 implement this
-        // TODO: 4/25/2019 - 2 : uncomment below
-        Version operationVersion = new Version(c.getSiteId(), c.getCounter());
         Operation operation = new Operation(c, 'r');
         this.deletionBuffer.add(operation);
         this.doDeletionBuffer();
         crdt.remoteDelete(c);
 
-        text = text.substring(0, deletedCharIndex) + text.substring(deletedCharIndex + 1);
+        crdt.printString();
+
+        text = crdt.getString();
+//        text = text.substring(0, deletedCharIndex) + text.substring(deletedCharIndex + 1);
         updateTextOnEditor();
         System.out.println("text: " + text);
     }
 
-    public VersionVector getVector() {
+    VersionVector getVector() {
         return vector;
     }
 
@@ -257,8 +270,9 @@ public class Peer2Peer {
             } else if (commands[0].equals("r")) {
                 int idx = Integer.parseInt(commands[1]);
                 char character = commands[2].toCharArray()[0];
+                int counter = Integer.parseInt(commands[3]);
 
-                remoteDelete(idx, character, siteId);
+                remoteDelete(idx, character, counter, siteId);
             }
         }
     }
