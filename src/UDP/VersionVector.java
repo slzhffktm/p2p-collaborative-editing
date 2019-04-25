@@ -25,7 +25,7 @@ public class VersionVector {
         this.versions.add(this.localVersion);
     }
 
-    void increment() {
+    public void increment() {
         this.localVersion.setCounter(localVersion.getCounter() + 1);
     }
 
@@ -38,7 +38,7 @@ public class VersionVector {
         Version existingVersion = null;
 
         for (Version v : versions) {
-            if (v.getSiteId().equals(incomingVersion.getSiteId())) {
+            if (v.getSiteId() == incomingVersion.getSiteId()) {
                 existingVersion = v;
                 break;
             }
@@ -68,7 +68,7 @@ public class VersionVector {
 
     public Version getVersionFromVector(Version incomingVersion) {
         for (Version v : versions) {
-            if (v.getSiteId().equals(incomingVersion.getSiteId())) {
+            if (v.getSiteId() == incomingVersion.getSiteId()) {
                 return v;
             }
         }
