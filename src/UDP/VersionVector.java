@@ -38,7 +38,7 @@ public class VersionVector {
         Version existingVersion = null;
 
         for (Version v : versions) {
-            if (v.getSiteId() == incomingVersion.getSiteId()) {
+            if (v.getSiteId().equals(incomingVersion.getSiteId())) {
                 existingVersion = v;
                 break;
             }
@@ -68,7 +68,7 @@ public class VersionVector {
 
     public Version getVersionFromVector(Version incomingVersion) {
         for (Version v : versions) {
-            if (v.getSiteId() == incomingVersion.getSiteId()) {
+            if (v.getSiteId().equals(incomingVersion.getSiteId())) {
                 return v;
             }
         }

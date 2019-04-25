@@ -7,7 +7,6 @@ import java.util.ArrayList;
  * exceptions are a set of counters for operations that our local CRDT has not
  * seen or integrated yet. Waiting for these operations.
  */
-
 public class Version {
     private String siteId;
     private int counter;
@@ -40,13 +39,13 @@ public class Version {
     public Version(String siteId) {
         this.siteId = siteId;
         this.counter = 0;
-        this.exceptions = new ArrayList<Integer>();
+        this.exceptions = new ArrayList<>();
     }
 
     public Version(String siteId, int counter) {
         this.siteId = siteId;
         this.counter = counter;
-        this.exceptions = new ArrayList<Integer>();
+        this.exceptions = new ArrayList<>();
     }
 
     /**
@@ -59,13 +58,12 @@ public class Version {
      */
     public void update(Version version) {
         int incomingCounter = version.getCounter();
-//        if (incomingCounter <= this.counter) {
         if (incomingCounter < this.counter) {
             int index = this.exceptions.indexOf(incomingCounter);
             if (this.exceptions.contains(index)) {
                 this.exceptions.remove(index);
             } else {
-                System.out.println("[Version->update] index not found at exception! (psst.. your code is probably incorrect, but if it works, it works)");
+                System.out.println("VERSION UPDATE: index not found");
             }
         } else if (incomingCounter == this.counter + 1) {
             this.counter++;

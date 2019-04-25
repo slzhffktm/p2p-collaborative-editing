@@ -175,20 +175,14 @@ public class Peer2Peer {
         text = crdt.getString();
 
         updateTextOnEditor();
-        System.out.println("text: " + text);
     }
 
     private void doDeletionBuffer() {
-        System.out.println("[processDeletionBuffer] START");
         int inc = 0;
         while (inc < this.deletionBuffer.size()) {
-            System.out.println("[processDeletionBuffer] >> check index = " + inc);
             Operation operation = this.deletionBuffer.get(inc);
-            System.out.println("[processDeletionBuffer] >> value = " + operation.getC().getValue() + ", counter = " + operation.getC().getCounter());
-            System.out.println("[processDeletionBuffer] >> siteId = " + operation.getC().getSiteId());
-            if (this.isInsertionApplied(operation)) {
+            if (!this.isInsertionApplied(operation)) {
                 Version operationVersion = new Version (operation.getC().getSiteId(), operation.getC().getCounter());
-                System.out.println("[processDeletionBuffer] >> currentCount = " + this.vector.getVersionFromVector(operationVersion).getCounter());
                 this.crdt.remoteDelete(operation.getC());
                 this.vector.update(operationVersion);
                 this.deletionBuffer.remove(operation);
@@ -198,7 +192,6 @@ public class Peer2Peer {
 
                 updateTextOnEditor();
             } else {
-                System.out.println("[processDeletionBuffer] >>>> insertion hasn't been applied yet!");
                 inc++;
             }
         }
@@ -210,18 +203,9 @@ public class Peer2Peer {
     }
 
     private void remoteDelete(Char c) {
-        // TODO: 4/25/2019 implement this
         Operation operation = new Operation(c, 'r');
         this.deletionBuffer.add(operation);
         this.doDeletionBuffer();
-//        crdt.remoteDelete(c);
-
-//        crdt.printString();
-//
-//        text = crdt.getString();
-////        text = text.substring(0, deletedCharIndex) + text.substring(deletedCharIndex + 1);
-//        updateTextOnEditor();
-//        System.out.println("text: " + text);
     }
 
     VersionVector getVector() {
