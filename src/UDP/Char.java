@@ -1,18 +1,19 @@
 package UDP;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Char {
-    private ArrayList<Identifier> position;
+    private List<Identifier> position;
     private int counter;
     private String siteId;
     private char value;
 
-    public ArrayList<Identifier> getPosition() {
+    public List<Identifier> getPosition() {
         return position;
     }
 
-    public void setPosition(ArrayList<Identifier> position) {
+    public void setPosition(List<Identifier> position) {
         this.position = position;
     }
 
@@ -40,7 +41,7 @@ public class Char {
         this.value = value;
     }
 
-    public Char(char value, int counter, String siteId, ArrayList<Identifier> position) {
+    public Char(char value, int counter, String siteId, List<Identifier> position) {
         this.position = position;
         this.counter = counter;
         this.siteId = siteId;
@@ -50,8 +51,8 @@ public class Char {
     public int compareTo(Char otherChar) {
         int comp;
         Identifier id1, id2;
-        ArrayList<Identifier> pos1 = (ArrayList<Identifier>) this.position.clone();
-        ArrayList<Identifier> pos2 = (ArrayList<Identifier>) otherChar.position.clone();
+        List<Identifier> pos1 = this.position;
+        List<Identifier> pos2 = otherChar.position;
 
         for (int i = 1; i < Math.min(pos1.size(), pos2.size()); i++) {
             id1 = pos1.get(i);

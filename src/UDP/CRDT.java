@@ -9,7 +9,7 @@ public class CRDT {
     private int boundary;
     private Peer2Peer controller;
     private String siteId;
-    private ArrayList<Char> struct;
+    private List<Char> struct;
 
     public CRDT(String siteId, Peer2Peer controller) {
         this.siteId = siteId;
@@ -30,7 +30,6 @@ public class CRDT {
 
     public void remoteInsert(Char c) {
         int index = this.findInsertIndex(c);
-        System.out.println("find insert index: " + index);
         this.struct.add(index, c);
 //        this.controller.insertToTextEditor(c.getValue(), index);
     }
@@ -123,7 +122,7 @@ public class CRDT {
     }
 
     public Char generateChar(char val, int index) {
-        ArrayList<Identifier> posBefore;
+        List<Identifier> posBefore;
 
         if (((index - 1) >= 0) && ((index - 1) < this.struct.size())) {
             posBefore = this.struct.get(index - 1).getPosition();
@@ -131,7 +130,7 @@ public class CRDT {
             posBefore = new ArrayList<Identifier>();
         }
 
-        ArrayList<Identifier> posAfter;
+        List<Identifier> posAfter;
 
         if (((index) >= 0) && ((index) < this.struct.size())) {
             posAfter = this.struct.get(index).getPosition();
@@ -139,7 +138,7 @@ public class CRDT {
             posAfter = new ArrayList<Identifier>();
         }
 
-        ArrayList<Identifier> newPos = new ArrayList<Identifier>();
+        List<Identifier> newPos = new ArrayList<Identifier>();
         this.generatePosBetween(posBefore, posAfter, newPos, 0);
         int localCounter = this.vector.getLocalVersion().getCounter();
 
@@ -147,7 +146,7 @@ public class CRDT {
     }
 
     private char retrieveStrategy(int level) {
-        return (Math.round(Math.random()) == 1 ? '+' : '-');
+        return (Math.round(Math.random()) == 0 ? '+' : '-');
     }
 
     public int generateIdBetween(int min, int max, char boundaryStrategy) {
@@ -164,130 +163,50 @@ public class CRDT {
         return ((int) Math.floor(Math.random() * (max - min)) + min);
     }
 
-    public void generatePosBetween(List<Identifier> posBefore,
-                                   List<Identifier> posAfter,
-                                   List<Identifier> newPos,
-                                   int level) {
-
+    private void generatePosBetween(List<Identifier> posBefore, List<Identifier> posAfter, List<Identifier> newPos, int level) {
         int base = (int) Math.pow(2, level) * this.base;
         char boundaryStrategy = this.retrieveStrategy(level);
 
-        Identifier idBefore;
-        if (posBefore.size() > 0) {
-            idBefore = posBefore.get(0);
-        } else {
-            idBefore = new Identifier(0, this.siteId);
-        }
-        Identifier idAfter;
-        if (posAfter.size() > 0) {
-            idAfter = posAfter.get(0);
-        } else {
-            idAfter = new Identifier(base, this.siteId);
-        }
+        Identifier id1 = (posBefore.size() > 0 ? posBefore.get(0) : new Identifier(0, this.siteId));
+        Identifier id2 = (posAfter.size() > 0 ? posAfter.get(0) : new Identifier(base, this.siteId));
 
-//        System.out.println("[generatePosBetween] idBefore = " + idBefore.getDigit() + ", idAfter = " + idAfter.getDigit());
-
-        if ((idAfter.getDigit() - idBefore.getDigit()) > 1) {
-            int newDigit = this.generateIdBetween(idBefore.getDigit(),
-                    idAfter.getDigit(),
-                    boundaryStrategy);
-//            System.out.println("[generatePosBetween] newDigit = " + newDigit);
+        if (id2.getDigit() - id1.getDigit() > 1) {
+            int newDigit = this.generateIdBetween(id1.getDigit(), id2.getDigit(), boundaryStrategy);
             newPos.add(new Identifier(newDigit, this.siteId));
-        } else if ((idAfter.getDigit() - idBefore.getDigit()) == 1) {
-            newPos.add(idBefore);
+        } else if (id2.getDigit() - id1.getDigit() == 1) {
+            newPos.add(id1);
             if (posBefore.size() > 0) {
-                posBefore = posBefore.subList(1, posBefore.size());
+                List sublist = posBefore.subList(1, posBefore.size());
+                posBefore = new ArrayList<Identifier>(sublist);
             }
-            this.generatePosBetween(posBefore,
-                    new ArrayList<Identifier>(),
-                    newPos,
-                    level + 1);
-        } else if (idBefore.getDigit() == idAfter.getDigit()) {
-            int comSiteId = idBefore.getSiteId().compareTo(idAfter.getSiteId());
-            if (comSiteId < 0) {
-                newPos.add(idBefore);
+            this.generatePosBetween(posBefore, new ArrayList<Identifier>(), newPos, level + 1);
+        } else if (id1.getDigit() == id2.getDigit()) {
+            int compare = id1.getSiteId().compareTo(id2.getSiteId());
+            if (compare < 0) {
+                newPos.add(id1);
                 if (posBefore.size() > 0) {
                     posBefore = posBefore.subList(1, posBefore.size());
                 }
-                this.generatePosBetween(posBefore,
-                        new ArrayList<Identifier>(),
-                        newPos,
-                        level + 1);
-            } else if (comSiteId == 0) {
-                newPos.add(idBefore);
+                this.generatePosBetween(posBefore, new ArrayList<Identifier>(), newPos, level + 1);
+            } else if (compare == 0) {
+                newPos.add(id1);
                 if (posBefore.size() > 0) {
                     posBefore = posBefore.subList(1, posBefore.size());
                 }
                 if (posAfter.size() > 0) {
                     posAfter = posAfter.subList(1, posAfter.size());
                 }
-                this.generatePosBetween(posBefore,
-                        posAfter,
-                        newPos,
-                        level + 1);
+                this.generatePosBetween(posBefore, posAfter, newPos, level + 1);
             } else {
-                throw new Error("u no gud at coding");
+                throw new Error("RIP");
             }
         }
     }
-//
-//    private void generatePosBetween(ArrayList<Identifier> posBefore, ArrayList<Identifier> posAfter, ArrayList<Identifier> newPos, int level) {
-//        Identifier id1 = (posBefore.size() > 0 ? posBefore.get(0) : new Identifier(0, this.siteId));
-//        Identifier id2 = (posAfter.size() > 0 ? posAfter.get(0) : new Identifier(0, this.siteId));
-//
-//        int base = (int) Math.pow(2, level) * this.base;
-//        char boundaryStrategy = this.retrieveStrategy(level);
-//
-//        if (id1.getDigit() - id2.getDigit() > 1) {
-//            int newDigit = this.generateIdBetween(id1.getDigit(), id2.getDigit(), boundaryStrategy);
-//            newPos.add(new Identifier(newDigit, this.siteId));
-//        } else if (id2.getDigit() - id1.getDigit() == 1) {
-//            newPos.add(id1);
-//            if (posBefore.size() > 0) {
-//                List sublist = posBefore.subList(1, posBefore.size());
-//                posBefore = new ArrayList<Identifier>(sublist);
-//            }
-//            this.generatePosBetween(posBefore, new ArrayList<Identifier>(), newPos, level + 1);
-//        } else if (id1.getDigit() == id2.getDigit()) {
-//            int compare = id1.getSiteId().compareTo(id2.getSiteId());
-//            if (compare < 0) {
-//                newPos.add(id1);
-//                if (posBefore.size() > 0) {
-//                    List sublist = posBefore.subList(1, posBefore.size());
-//                    posBefore = new ArrayList<Identifier>(sublist);
-//                }
-//                this.generatePosBetween(posBefore, new ArrayList<Identifier>(), newPos, level + 1);
-//            } else if (compare == 0) {
-//                newPos.add(id1);
-//                if (posBefore.size() > 0) {
-//                    List sublist = posBefore.subList(1, posBefore.size());
-//                    posBefore = new ArrayList<Identifier>(sublist);
-//                }
-//                if (posAfter.size() > 0) {
-//                    List sublist = posAfter.subList(1, posAfter.size());
-//                    posAfter = new ArrayList<Identifier>(sublist);
-//                }
-//                this.generatePosBetween(posBefore, posAfter, newPos, level + 1);
-//            } else {
-//                throw new Error("RIP");
-//            }
-//        }
-//    }
 
     public void printString() {
         for (Char c : this.struct) {
             System.out.print(c.getValue());
         }
         System.out.println("");
-    }
-
-    public String getString() {
-        String string = "";
-
-        for (Char c : this.struct) {
-            string += c.getValue();
-        }
-
-        return string;
     }
 }
