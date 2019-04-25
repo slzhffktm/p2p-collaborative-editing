@@ -48,25 +48,25 @@ public class Char {
         this.value = value;
     }
 
-    public int compareTo(Char otherChar) {
-        int comp;
-        Identifier id1, id2;
-        List<Identifier> pos1 = this.position;
-        List<Identifier> pos2 = otherChar.position;
+    public int compareTo(Char other) {
+        List<Identifier> thisPosition = this.position;
+        List<Identifier> otherPosition = other.position;
 
-        for (int i = 1; i < Math.min(pos1.size(), pos2.size()); i++) {
-            id1 = pos1.get(i);
-            id2 = pos2.get(i);
-            comp = id1.compareTo(id2);
+        int thisPosSize = thisPosition.size();
+        int otherPosSize = otherPosition.size();
 
-            if (comp != 0) {
-                return comp;
+        int minPosSize = Math.min(thisPosSize, otherPosSize);
+        for (int i = 0; i < minPosSize; i++) {
+            Identifier thisIndex = thisPosition.get(i);
+            Identifier otherIndex = otherPosition.get(i);
+            if (thisIndex.compareTo(otherIndex) != 0) {
+                return thisIndex.compareTo(otherIndex);
             }
         }
 
-        if (pos1.size() < pos2.size()) {
+        if (thisPosSize < otherPosSize) {
             return -1;
-        } else if (pos1.size() > pos2.size()) {
+        } else if (thisPosSize > otherPosSize) {
             return 1;
         } else {
             return 0;
