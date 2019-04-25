@@ -9,7 +9,7 @@ public class CRDT {
     private int boundary;
     private Peer2Peer controller;
     private String siteId;
-    private ArrayList<Char> struct;
+    private List<Char> struct;
 
     public CRDT(String siteId, Peer2Peer controller) {
         this.siteId = siteId;
@@ -122,7 +122,7 @@ public class CRDT {
     }
 
     public Char generateChar(char val, int index) {
-        ArrayList<Identifier> posBefore;
+        List<Identifier> posBefore;
 
         if (((index - 1) >= 0) && ((index - 1) < this.struct.size())) {
             posBefore = this.struct.get(index - 1).getPosition();
@@ -130,7 +130,7 @@ public class CRDT {
             posBefore = new ArrayList<Identifier>();
         }
 
-        ArrayList<Identifier> posAfter;
+        List<Identifier> posAfter;
 
         if (((index) >= 0) && ((index) < this.struct.size())) {
             posAfter = this.struct.get(index).getPosition();
@@ -138,7 +138,7 @@ public class CRDT {
             posAfter = new ArrayList<Identifier>();
         }
 
-        ArrayList<Identifier> newPos = new ArrayList<Identifier>();
+        List<Identifier> newPos = new ArrayList<Identifier>();
         this.generatePosBetween(posBefore, posAfter, newPos, 0);
         int localCounter = this.vector.getLocalVersion().getCounter();
 
@@ -163,14 +163,14 @@ public class CRDT {
         return ((int) Math.floor(Math.random() * (max - min)) + min);
     }
 
-    private void generatePosBetween(ArrayList<Identifier> posBefore, ArrayList<Identifier> posAfter, ArrayList<Identifier> newPos, int level) {
-        Identifier id1 = (posBefore.size() > 0 ? posBefore.get(0) : new Identifier(0, this.siteId));
-        Identifier id2 = (posAfter.size() > 0 ? posAfter.get(0) : new Identifier(0, this.siteId));
-
+    private void generatePosBetween(List<Identifier> posBefore, List<Identifier> posAfter, List<Identifier> newPos, int level) {
         int base = (int) Math.pow(2, level) * this.base;
         char boundaryStrategy = this.retrieveStrategy(level);
 
-        if (id1.getDigit() - id2.getDigit() > 1) {
+        Identifier id1 = (posBefore.size() > 0 ? posBefore.get(0) : new Identifier(0, this.siteId));
+        Identifier id2 = (posAfter.size() > 0 ? posAfter.get(0) : new Identifier(base, this.siteId));
+
+        if (id2.getDigit() - id1.getDigit() > 1) {
             int newDigit = this.generateIdBetween(id1.getDigit(), id2.getDigit(), boundaryStrategy);
             newPos.add(new Identifier(newDigit, this.siteId));
         } else if (id2.getDigit() - id1.getDigit() == 1) {
@@ -185,19 +185,16 @@ public class CRDT {
             if (compare < 0) {
                 newPos.add(id1);
                 if (posBefore.size() > 0) {
-                    List sublist = posBefore.subList(1, posBefore.size());
-                    posBefore = new ArrayList<Identifier>(sublist);
+                    posBefore = posBefore.subList(1, posBefore.size());
                 }
                 this.generatePosBetween(posBefore, new ArrayList<Identifier>(), newPos, level + 1);
             } else if (compare == 0) {
                 newPos.add(id1);
                 if (posBefore.size() > 0) {
-                    List sublist = posBefore.subList(1, posBefore.size());
-                    posBefore = new ArrayList<Identifier>(sublist);
+                    posBefore = posBefore.subList(1, posBefore.size());
                 }
                 if (posAfter.size() > 0) {
-                    List sublist = posAfter.subList(1, posAfter.size());
-                    posAfter = new ArrayList<Identifier>(sublist);
+                    posAfter = posAfter.subList(1, posAfter.size());
                 }
                 this.generatePosBetween(posBefore, posAfter, newPos, level + 1);
             } else {
