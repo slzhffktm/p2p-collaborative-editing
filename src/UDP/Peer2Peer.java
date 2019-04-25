@@ -139,37 +139,32 @@ public class Peer2Peer {
     }
 
     private void localInsert(int insertedCharIndex, char insertedChar) {
-        // TODO: 4/25/2019 implement this
         Char c = crdt.localInsert(insertedChar, insertedCharIndex);
 
         crdt.printString();
 
         System.out.println("i`" + insertedCharIndex + "`" + insertedChar);
         sendEcho(sendMsg('i', insertedChar, c.getCounter(), c.getPosition()));
-//        sendEcho("i`" + insertedCharIndex + "`" + insertedChar);        // send the command to all nodes
         text = textEditor.getText();
     }
 
     private void localDelete(int deletedCharIndex, char deletedChar) {
-        // TODO: 4/25/2019 implement this
         Char c = crdt.localDelete(deletedCharIndex);
 
         crdt.printString();
 
         System.out.println("r`" + deletedCharIndex + "`" + deletedChar + "`" + c.getCounter());
         sendEcho(sendMsg('r', deletedChar, c.getCounter(), c.getPosition()));
-//        sendEcho("r`" + deletedCharIndex + "`" + deletedChar + "`" + c.getCounter());          // send the command to all nodes
+
         text = textEditor.getText();
     }
 
     private void remoteInsert(Char c) {
-        // TODO: 4/25/2019 implement this
         Version operationVersion = new Version(c.getSiteId(), c.getCounter());
+
         if (this.vector.hasBeenApplied(operationVersion)) {
             return;
         }
-
-        System.out.println("after version");
 
         crdt.remoteInsert(c);
         this.vector.update(operationVersion);
@@ -184,11 +179,16 @@ public class Peer2Peer {
     }
 
     private void doDeletionBuffer() {
+        System.out.println("[processDeletionBuffer] START");
         int inc = 0;
         while (inc < this.deletionBuffer.size()) {
+            System.out.println("[processDeletionBuffer] >> check index = " + inc);
             Operation operation = this.deletionBuffer.get(inc);
+            System.out.println("[processDeletionBuffer] >> value = " + operation.getC().getValue() + ", counter = " + operation.getC().getCounter());
+            System.out.println("[processDeletionBuffer] >> siteId = " + operation.getC().getSiteId());
             if (this.isInsertionApplied(operation)) {
                 Version operationVersion = new Version (operation.getC().getSiteId(), operation.getC().getCounter());
+                System.out.println("[processDeletionBuffer] >> currentCount = " + this.vector.getVersionFromVector(operationVersion).getCounter());
                 this.crdt.remoteDelete(operation.getC());
                 this.vector.update(operationVersion);
                 this.deletionBuffer.remove(operation);
@@ -198,6 +198,7 @@ public class Peer2Peer {
 
                 updateTextOnEditor();
             } else {
+                System.out.println("[processDeletionBuffer] >>>> insertion hasn't been applied yet!");
                 inc++;
             }
         }
