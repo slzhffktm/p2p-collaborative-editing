@@ -24,7 +24,7 @@ public class Peer2Peer {
     private String siteId;
     private CRDT crdt;
     private VersionVector vector;
-    private ArrayList<DatagramPacket> deletionBuffer;
+    private ArrayList<Operation> deletionBuffer;
 
 
     public Peer2Peer() {
@@ -45,6 +45,7 @@ public class Peer2Peer {
 
         if (running) {
             textEditor = new TextEditor();
+            vector = new VersionVector(siteId);
             crdt = new CRDT(siteId, this);
             textEditor.getT().getDocument().addDocumentListener(new DocumentListener() {
                 @Override
@@ -111,7 +112,6 @@ public class Peer2Peer {
             packet = new DatagramPacket(buf, buf.length, address, port);
 
             try {
-                // TODO: if delete => deletionBuffer.add(packet);
                 socket.send(packet);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -129,19 +129,19 @@ public class Peer2Peer {
 
     private void localInsert(int insertedCharIndex, char insertedChar) {
         // TODO: 4/25/2019 implement this
-        crdt.localInsert(insertedChar, insertedCharIndex);
+        Char c = crdt.localInsert(insertedChar, insertedCharIndex);
 
         System.out.println("i`" + insertedCharIndex + "`" + insertedChar);
-        sendEcho("i`" + insertedCharIndex + "`" + insertedChar);
+        sendEcho("i`" + insertedCharIndex + "`" + insertedChar);        // send the command to all nodes
         text = textEditor.getText();
     }
 
     private void localDelete(int deletedCharIndex, char deletedChar) {
         // TODO: 4/25/2019 implement this
-        crdt.localDelete(deletedCharIndex);
+        Char c = crdt.localDelete(deletedCharIndex);
 
         System.out.println("r`" + deletedCharIndex + "`" + deletedChar);
-        sendEcho("r`" + deletedCharIndex + "`" + deletedChar);
+        sendEcho("r`" + deletedCharIndex + "`" + deletedChar);          // send the command to all nodes
         text = textEditor.getText();
     }
 
@@ -167,36 +167,33 @@ public class Peer2Peer {
     private void doDeletionBuffer() {
         int inc = 0;
         while (inc < this.deletionBuffer.size()) {
-            DatagramPacket dp = this.deletionBuffer.get(inc);
-            if (this.isInsertionApplied(dp)) {
-                //TODO: var operation
-//                Version operationVersion = new Version (operation.getSiteID(), operationVersion.getCounter());
-//                this.crdt.remoteDelete(operation.getData());
-//                this.vector.update(operatorVersion);
-//                this.deletionBuffer.remove(operator)
+            Operation operation = this.deletionBuffer.get(inc);
+            if (this.isInsertionApplied(operation)) {
+                Version operationVersion = new Version (operation.getC().getSiteId(), operation.getC().getCounter());
+                this.crdt.remoteDelete(operation.getC());
+                this.vector.update(operationVersion);
+                this.deletionBuffer.remove(operation);
             } else {
                 inc++;
             }
         }
     }
 
-    private boolean isInsertionApplied(DatagramPacket dp) {
-        // TODO: operation???
-        //
-        // Version v = new Version (operation.(...).getSiteId(), operation.(...).getCounter());
-        // return this.vector.hasBeenApplied(v);
+    private boolean isInsertionApplied(Operation operation) {
+        Version v = new Version (operation.getC().getSiteId(), operation.getC().getCounter());
+        return this.vector.hasBeenApplied(v);
     }
 
-    private void remoteDelete(int deletedCharIndex, Char c) {
-//        ArrayList<Identifier> identifiers = new ArrayList<>();
-//        identifiers.add(new Identifier(deletedCharIndex, siteId));
-//        Char c = new Char(deletedChar, 0, siteId, identifiers);
+    private void remoteDelete(int deletedCharIndex, char deletedChar, String siteId) {
+        ArrayList<Identifier> identifiers = new ArrayList<>();
+        identifiers.add(new Identifier(deletedCharIndex, siteId));
+        Char c = new Char(deletedChar, 0, siteId, identifiers);
 
         // TODO: 4/25/2019 implement this
         // TODO: 4/25/2019 - 2 : uncomment below
         Version operationVersion = new Version(c.getSiteId(), c.getCounter());
-//        Operation operation = new Operation(c, "delete");
-//        this.deletionBuffer.add(operation);
+        Operation operation = new Operation(c, 'r');
+        this.deletionBuffer.add(operation);
         this.doDeletionBuffer();
         crdt.remoteDelete(c);
 

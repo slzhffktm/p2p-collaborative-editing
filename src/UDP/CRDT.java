@@ -20,12 +20,12 @@ public class CRDT {
         this.controller = controller;
     }
 
-    public void localInsert(char value, int index) {
+    public Char localInsert(char value, int index) {
         this.vector.increment();
         Char c;
         c = this.generateChar(value, index);
         this.struct.add(index, c);
-//        return c;
+        return c;
     }
 
     public void remoteInsert(Char c) {
@@ -34,12 +34,12 @@ public class CRDT {
 //        this.controller.insertToTextEditor(c.getValue(), index);
     }
 
-    public void localDelete(int index) {
+    public Char localDelete(int index) {
         this.controller.getVector().increment();
         Char c = this.struct.get(index - 1);
 
         this.struct.remove(index - 1);
-//        return c;
+        return c;
     }
 
     public void remoteDelete(Char c) {
