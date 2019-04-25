@@ -25,7 +25,7 @@ public class VersionVector {
         this.versions.add(this.localVersion);
     }
 
-    public void increment() {
+    void increment() {
         this.localVersion.setCounter(localVersion.getCounter() + 1);
     }
 
