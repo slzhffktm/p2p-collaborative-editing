@@ -139,37 +139,32 @@ public class Peer2Peer {
     }
 
     private void localInsert(int insertedCharIndex, char insertedChar) {
-        // TODO: 4/25/2019 implement this
         Char c = crdt.localInsert(insertedChar, insertedCharIndex);
 
         crdt.printString();
 
         System.out.println("i`" + insertedCharIndex + "`" + insertedChar);
         sendEcho(sendMsg('i', insertedChar, c.getCounter(), c.getPosition()));
-//        sendEcho("i`" + insertedCharIndex + "`" + insertedChar);        // send the command to all nodes
         text = textEditor.getText();
     }
 
     private void localDelete(int deletedCharIndex, char deletedChar) {
-        // TODO: 4/25/2019 implement this
         Char c = crdt.localDelete(deletedCharIndex);
 
         crdt.printString();
 
         System.out.println("r`" + deletedCharIndex + "`" + deletedChar + "`" + c.getCounter());
         sendEcho(sendMsg('r', deletedChar, c.getCounter(), c.getPosition()));
-//        sendEcho("r`" + deletedCharIndex + "`" + deletedChar + "`" + c.getCounter());          // send the command to all nodes
+
         text = textEditor.getText();
     }
 
     private void remoteInsert(Char c) {
-        // TODO: 4/25/2019 implement this
         Version operationVersion = new Version(c.getSiteId(), c.getCounter());
+
         if (this.vector.hasBeenApplied(operationVersion)) {
             return;
         }
-
-        System.out.println("after version");
 
         crdt.remoteInsert(c);
         this.vector.update(operationVersion);
@@ -180,7 +175,6 @@ public class Peer2Peer {
         text = crdt.getString();
 
         updateTextOnEditor();
-        System.out.println("text: " + text);
     }
 
     private void doDeletionBuffer() {
@@ -209,18 +203,9 @@ public class Peer2Peer {
     }
 
     private void remoteDelete(Char c) {
-        // TODO: 4/25/2019 implement this
         Operation operation = new Operation(c, 'r');
         this.deletionBuffer.add(operation);
         this.doDeletionBuffer();
-//        crdt.remoteDelete(c);
-
-//        crdt.printString();
-//
-//        text = crdt.getString();
-////        text = text.substring(0, deletedCharIndex) + text.substring(deletedCharIndex + 1);
-//        updateTextOnEditor();
-//        System.out.println("text: " + text);
     }
 
     VersionVector getVector() {
