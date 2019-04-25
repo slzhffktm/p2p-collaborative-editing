@@ -150,12 +150,10 @@ public class Peer2Peer {
     }
 
     private void remoteInsert(int insertedCharIndex, char insertedChar) {
-//        ArrayList<Identifier> identifiers = new ArrayList<>();
-//        identifiers.add(new Identifier(insertedCharIndex, siteId));
         Char c = crdt.generateChar(insertedChar, insertedCharIndex);
 
-        System.out.println("remote insert");
-        System.out.println(c.getCounter());
+//        System.out.println("remote insert");
+        System.out.println("insertcharindex: " + insertedCharIndex);
 
         // TODO: 4/25/2019 implement this
         Version operationVersion = new Version(c.getSiteId(), c.getCounter());
@@ -163,7 +161,7 @@ public class Peer2Peer {
 //            return;
 //        }
 
-        System.out.println("after version");
+//        System.out.println("after version");
 
         crdt.remoteInsert(c);
         this.vector.update(operationVersion);
