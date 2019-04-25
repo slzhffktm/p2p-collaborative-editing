@@ -37,9 +37,9 @@ public class CRDT {
 
     public Char localDelete(int index) {
         this.controller.getVector().increment();
-        Char c = this.struct.get(index - 1);
+        Char c = this.struct.get(index);
 
-        this.struct.remove(index - 1);
+        this.struct.remove(index);
         return c;
     }
 

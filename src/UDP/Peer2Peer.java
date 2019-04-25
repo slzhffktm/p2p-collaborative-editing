@@ -7,6 +7,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Peer2Peer {
@@ -127,14 +128,24 @@ public class Peer2Peer {
         isUpdatingTextEditor = false;
     }
 
+    private String sendMsg(char command, char value, int counter, List<Identifier> position) {
+        String send = "" + command + "`" + value + "`" + counter;
+        for (Identifier pos : position) {
+            send += "`" + pos.getDigit();
+            send += "`" + pos.getSiteId();
+        }
+        return send;
+    }
+
     private void localInsert(int insertedCharIndex, char insertedChar) {
         // TODO: 4/25/2019 implement this
-        crdt.localInsert(insertedChar, insertedCharIndex);
+        Char c = crdt.localInsert(insertedChar, insertedCharIndex);
 
         crdt.printString();
 
         System.out.println("i`" + insertedCharIndex + "`" + insertedChar);
-        sendEcho("i`" + insertedCharIndex + "`" + insertedChar);        // send the command to all nodes
+        sendEcho(sendMsg('i', insertedChar, c.getCounter(), c.getPosition()));
+//        sendEcho("i`" + insertedCharIndex + "`" + insertedChar);        // send the command to all nodes
         text = textEditor.getText();
     }
 
@@ -145,7 +156,8 @@ public class Peer2Peer {
         crdt.printString();
 
         System.out.println("r`" + deletedCharIndex + "`" + deletedChar + "`" + c.getCounter());
-        sendEcho("r`" + deletedCharIndex + "`" + deletedChar + "`" + c.getCounter());          // send the command to all nodes
+        sendEcho(sendMsg('r', deletedChar, c.getCounter(), c.getPosition()));
+//        sendEcho("r`" + deletedCharIndex + "`" + deletedChar + "`" + c.getCounter());          // send the command to all nodes
         text = textEditor.getText();
     }
 
@@ -205,7 +217,7 @@ public class Peer2Peer {
         Operation operation = new Operation(c, 'r');
         this.deletionBuffer.add(operation);
         this.doDeletionBuffer();
-        crdt.remoteDelete(c);
+//        crdt.remoteDelete(c);
 
         crdt.printString();
 
