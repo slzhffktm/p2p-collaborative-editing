@@ -7,6 +7,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -161,20 +162,14 @@ public class Peer2Peer {
         text = textEditor.getText();
     }
 
-    private void remoteInsert(int insertedCharIndex, char insertedChar) {
-        Char c = crdt.generateChar(insertedChar, insertedCharIndex);
-        System.out.println("this: " + c.getPosition().get(0).getDigit());
-
-//        System.out.println("remote insert");
-        System.out.println("insertcharindex: " + insertedCharIndex);
-
+    private void remoteInsert(Char c) {
         // TODO: 4/25/2019 implement this
         Version operationVersion = new Version(c.getSiteId(), c.getCounter());
-//        if (this.vector.hasBeenApplied(operationVersion)) {
-//            return;
-//        }
+        if (this.vector.hasBeenApplied(operationVersion)) {
+            return;
+        }
 
-//        System.out.println("after version");
+        System.out.println("after version");
 
         crdt.remoteInsert(c);
         this.vector.update(operationVersion);
@@ -183,7 +178,7 @@ public class Peer2Peer {
         crdt.printString();
 
         text = crdt.getString();
-//        text = text.substring(0, insertedCharIndex) + insertedChar + text.substring(insertedCharIndex);
+
         updateTextOnEditor();
         System.out.println("text: " + text);
     }
@@ -197,6 +192,11 @@ public class Peer2Peer {
                 this.crdt.remoteDelete(operation.getC());
                 this.vector.update(operationVersion);
                 this.deletionBuffer.remove(operation);
+                crdt.printString();
+
+                text = crdt.getString();
+
+                updateTextOnEditor();
             } else {
                 inc++;
             }
@@ -208,23 +208,19 @@ public class Peer2Peer {
         return this.vector.hasBeenApplied(v);
     }
 
-    private void remoteDelete(int deletedCharIndex, char deletedChar, int counter, String siteId) {
-        ArrayList<Identifier> identifiers = new ArrayList<>();
-        identifiers.add(new Identifier(deletedCharIndex, siteId));
-        Char c = new Char(deletedChar, counter, siteId, identifiers);
-
+    private void remoteDelete(Char c) {
         // TODO: 4/25/2019 implement this
         Operation operation = new Operation(c, 'r');
         this.deletionBuffer.add(operation);
         this.doDeletionBuffer();
 //        crdt.remoteDelete(c);
 
-        crdt.printString();
-
-        text = crdt.getString();
-//        text = text.substring(0, deletedCharIndex) + text.substring(deletedCharIndex + 1);
-        updateTextOnEditor();
-        System.out.println("text: " + text);
+//        crdt.printString();
+//
+//        text = crdt.getString();
+////        text = text.substring(0, deletedCharIndex) + text.substring(deletedCharIndex + 1);
+//        updateTextOnEditor();
+//        System.out.println("text: " + text);
     }
 
     VersionVector getVector() {
@@ -275,17 +271,30 @@ public class Peer2Peer {
             String[] commands = incomingCommand.split("`");
 
             if (commands[0].equals("i")) {
-                int idx = Integer.parseInt(commands[1]);
-                char character = commands[2].toCharArray()[0];
+                char character = commands[1].toCharArray()[0];
+                int counter = Integer.parseInt(commands[2]);
 
-                remoteInsert(idx, character);
+                Char c = new Char(character, counter, siteId,
+                        convertToIdentifierList(Arrays.copyOfRange(commands, 3, commands.length)));
+                remoteInsert(c);
             } else if (commands[0].equals("r")) {
-                int idx = Integer.parseInt(commands[1]);
-                char character = commands[2].toCharArray()[0];
-                int counter = Integer.parseInt(commands[3]);
+                char character = commands[1].toCharArray()[0];
+                int counter = Integer.parseInt(commands[2]);
 
-                remoteDelete(idx, character, counter, siteId);
+                Char c = new Char(character, counter, siteId,
+                        convertToIdentifierList(Arrays.copyOfRange(commands, 3, commands.length)));
+                remoteDelete(c);
             }
+        }
+
+        private ArrayList<Identifier> convertToIdentifierList(String[] identifierStrings) {
+            ArrayList<Identifier> identifiers = new ArrayList<>();
+
+            for (int i = 0; i < identifierStrings.length; i += 2) {
+                identifiers.add(new Identifier(Integer.parseInt(identifierStrings[i]), identifierStrings[i+1]));
+            }
+
+            return identifiers;
         }
     }
 }
