@@ -187,7 +187,7 @@ public class Peer2Peer {
         int inc = 0;
         while (inc < this.deletionBuffer.size()) {
             Operation operation = this.deletionBuffer.get(inc);
-            if (this.isInsertionApplied(operation)) {
+            if (!this.isInsertionApplied(operation)) {
                 Version operationVersion = new Version (operation.getC().getSiteId(), operation.getC().getCounter());
                 this.crdt.remoteDelete(operation.getC());
                 this.vector.update(operationVersion);
