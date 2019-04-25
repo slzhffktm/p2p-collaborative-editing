@@ -57,14 +57,18 @@ public class Version {
      *
      * @param version
      */
-    public void update(Version version){
-        int incomingCounter = version.counter;
-
-        if (incomingCounter <= this.counter) {
+    public void update(Version version) {
+        int incomingCounter = version.getCounter();
+//        if (incomingCounter <= this.counter) {
+        if (incomingCounter < this.counter) {
             int index = this.exceptions.indexOf(incomingCounter);
-            this.exceptions.add(index, 1);
+            if (this.exceptions.contains(index)) {
+                this.exceptions.remove(index);
+            } else {
+                System.out.println("[Version->update] index not found at exception! (psst.. your code is probably incorrect, but if it works, it works)");
+            }
         } else if (incomingCounter == this.counter + 1) {
-            this.counter += 1;
+            this.counter++;
         } else {
             for (int i = this.counter + 1; i < incomingCounter; i++) {
                 this.exceptions.add(i);

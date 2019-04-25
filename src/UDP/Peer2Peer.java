@@ -155,12 +155,13 @@ public class Peer2Peer {
         Char c = crdt.generateChar(insertedChar, insertedCharIndex);
 
         System.out.println("remote insert");
+        System.out.println(c.getCounter());
 
         // TODO: 4/25/2019 implement this
         Version operationVersion = new Version(c.getSiteId(), c.getCounter());
-        if (this.vector.hasBeenApplied(operationVersion)) {
-            return;
-        }
+//        if (this.vector.hasBeenApplied(operationVersion)) {
+//            return;
+//        }
 
         System.out.println("after version");
 
