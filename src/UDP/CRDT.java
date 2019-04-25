@@ -32,7 +32,6 @@ public class CRDT {
         System.out.println("c pos: " + c.getPosition().get(0).getDigit());
         int index = this.findInsertIndex(c);
         this.struct.add(index, c);
-//        this.controller.insertToTextEditor(c.getValue(), index);
     }
 
     public Char localDelete(int index) {
@@ -50,7 +49,6 @@ public class CRDT {
             return;
         }
         this.struct.remove(index);
-//        this.controller.deleteToTextEditor(index);
     }
 
     public int findInsertIndex(Char c) {
@@ -78,39 +76,6 @@ public class CRDT {
         }
 
         return (c.compareTo(this.struct.get(left)) == 0 ? left : right);
-    }
-
-    public int findIndexByPosition(Char c) {
-        int left = 0;
-        int right = this.struct.size() - 1;
-        int mid, compareNum;
-
-        if (this.struct.size() == 0) {
-            throw new Error("Character doesn't exist in CRDT");
-//            return 0;
-        }
-
-        while (left + 1 < right) {
-            mid = (int) Math.floor(left + (right - left) / 2);
-            compareNum = c.compareTo(this.struct.get(mid));
-
-            if (compareNum == 0) {
-                return mid;
-            } else if (compareNum > 0) {
-                left = mid;
-            } else {
-                right = mid;
-            }
-        }
-
-        if (c.compareTo(this.struct.get(left)) == 0) {
-            return left;
-        } else if (c.compareTo(this.struct.get(right)) == 0) {
-            return right;
-        } else {
-            throw new Error("Character doesn't exist in CRDT");
-//            return 0;
-        }
     }
 
     public int findPosition(Char c) {
@@ -141,7 +106,6 @@ public class CRDT {
 
         List<Identifier> newPos = new ArrayList<Identifier>();
         this.generatePosBetween(posBefore, posAfter, newPos, 0);
-        int localCounter = this.vector.getLocalVersion().getCounter();
 
         return new Char(val, this.vector.getLocalVersion().getCounter(), this.siteId, newPos);
     }
@@ -208,7 +172,7 @@ public class CRDT {
         for (Char c : this.struct) {
             System.out.print(c.getValue());
         }
-        System.out.println("");
+        System.out.println();
     }
 
     String getString() {

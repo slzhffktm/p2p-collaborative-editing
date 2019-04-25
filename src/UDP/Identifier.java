@@ -8,16 +8,8 @@ public class Identifier {
         return digit;
     }
 
-    public void setDigit(int digit) {
-        this.digit = digit;
-    }
-
     public String getSiteId() {
         return siteId;
-    }
-
-    public void setSiteId(String siteId) {
-        this.siteId = siteId;
     }
 
     public Identifier(int digit, String siteId) {

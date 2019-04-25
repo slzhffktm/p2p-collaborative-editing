@@ -1,6 +1,5 @@
 package UDP;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Char {
@@ -13,32 +12,16 @@ public class Char {
         return position;
     }
 
-    public void setPosition(List<Identifier> position) {
-        this.position = position;
-    }
-
     public int getCounter() {
         return counter;
-    }
-
-    public void setCounter(int counter) {
-        this.counter = counter;
     }
 
     public String getSiteId() {
         return siteId;
     }
 
-    public void setSiteId(String siteId) {
-        this.siteId = siteId;
-    }
-
     public char getValue() {
         return value;
-    }
-
-    public void setValue(char value) {
-        this.value = value;
     }
 
     public Char(char value, int counter, String siteId, List<Identifier> position) {
