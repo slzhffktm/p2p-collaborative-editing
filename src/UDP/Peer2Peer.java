@@ -6,6 +6,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.security.spec.ECField;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -31,19 +32,19 @@ public class Peer2Peer {
 
     Peer2Peer() {
         port = 4445;
-        int addressNumber = 1;
-        while (addressNumber <= 10) {
-            String address = "127.0.0." + addressNumber;
-            try {
-                socket = new DatagramSocket(port, InetAddress.getByName(address));
-                System.out.println("Creating new socket at " + socket.getLocalSocketAddress());
-                running = true;
-                siteId = String.valueOf(socket.getLocalAddress());
-                break;
-            } catch (Exception e) {
-                ++addressNumber;
-            }
+//        int addressNumber = 1;
+//        while (addressNumber <= 10) {
+        String address = "192.168.43.234";
+        try {
+            socket = new DatagramSocket(port, InetAddress.getByName(address));
+//            System.out.println("Creating new socket at " + socket.getLocalSocketAddress());
+            running = true;
+            siteId = String.valueOf(InetAddress.getByName(address));
+//                break;
+        } catch (Exception e) {
+//                ++addressNumber;
         }
+//        }
 
         if (running) {
             textEditor = new TextEditor();
@@ -74,8 +75,12 @@ public class Peer2Peer {
                 }
             });
 
-            addAddresses(addressNumber);
-            sendPing();
+            try {
+                addresses.add(InetAddress.getByName("192.168.43.116"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+//            sendPing();
 
             new ReceiverThread().start();
         }
@@ -93,15 +98,15 @@ public class Peer2Peer {
         } while (!msg.equals("end"));
     }
 
-    private void addAddresses(int addressNumber) {
-        for (int i = 1; i < addressNumber; i++) {
-            try {
-                addresses.add(InetAddress.getByName("127.0.0." + i));
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-            }
-        }
-    }
+//    private void addAddresses(int addressNumber) {
+//        for (int i = 1; i < addressNumber; i++) {
+//            try {
+//                addresses.add(InetAddress.getByName("127.0.0." + i));
+//            } catch (UnknownHostException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     private void sendPing() {
         sendEcho("p");
